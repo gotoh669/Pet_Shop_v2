@@ -3,5 +3,7 @@ uvicorn[standard]
 pydantic
 sqlalchemy
 alembic
+pymysql
+cryptography
 redis
 python-dotenv

@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+fastapi-env/
+
+# Environment
+.env
+*.env.local
+
+# Node / Vue / uni-app
+node_modules/
+dist/
+unpackage/
+.hbuilderx/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
