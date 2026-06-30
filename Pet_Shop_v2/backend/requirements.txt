@@ -5,5 +5,4 @@ sqlalchemy
 alembic
 pymysql
 cryptography
-redis
 python-dotenv

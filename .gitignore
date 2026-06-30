@@ -12,6 +12,11 @@ fastapi-env/
 .env
 *.env.local
 
+# Local databases
+*.db
+*.sqlite
+*.sqlite3
+
 # Node / Vue / uni-app
 node_modules/
 dist/
