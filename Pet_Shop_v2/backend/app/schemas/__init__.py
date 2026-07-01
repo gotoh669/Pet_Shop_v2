@@ -1,4 +1,32 @@
 from app.schemas.auth import SmsLoginRequest, SmsSendRequest, SmsSendResponse, TokenResponse
+from app.schemas.live_pet import (
+    LivePetAuditRequest,
+    LivePetCreate,
+    LivePetPublic,
+    LivePetPurchasePublic,
+    LivePetUpdate,
+)
+from app.schemas.pet import (
+    GrowthRecordCreate,
+    GrowthRecordPublic,
+    PetProfileCreate,
+    PetProfilePublic,
+    PetProfileUpdate,
+    ReminderCreate,
+    ReminderPublic,
+    ReminderUpdate,
+)
+from app.schemas.product import (
+    CartAddRequest,
+    CartItemPublic,
+    CartSummary,
+    CartUpdateRequest,
+    CategoryPublic,
+    ProductAuditRequest,
+    ProductCreate,
+    ProductPublic,
+    ProductUpdate,
+)
 from app.schemas.user import (
     PermissionPublic,
     RolePublic,
@@ -11,6 +39,28 @@ from app.schemas.user import (
 
 __all__ = [
     "PermissionPublic",
+    "GrowthRecordCreate",
+    "LivePetAuditRequest",
+    "LivePetCreate",
+    "LivePetPublic",
+    "LivePetPurchasePublic",
+    "LivePetUpdate",
+    "GrowthRecordPublic",
+    "PetProfileCreate",
+    "PetProfilePublic",
+    "PetProfileUpdate",
+    "ReminderCreate",
+    "ReminderPublic",
+    "ReminderUpdate",
+    "CartAddRequest",
+    "CartItemPublic",
+    "CartSummary",
+    "CartUpdateRequest",
+    "CategoryPublic",
+    "ProductAuditRequest",
+    "ProductCreate",
+    "ProductPublic",
+    "ProductUpdate",
     "RolePublic",
     "UserAdminPublic",
     "UserListQuery",

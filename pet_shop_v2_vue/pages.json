@@ -1,9 +1,81 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
+			"path": "pages/account/account",
+			"style": {
+				"navigationBarTitleText": "账号登录"
+			}
+		},
+		{
+			"path": "pages/account/profile",
+			"style": {
+				"navigationBarTitleText": "资料编辑"
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "Pet Shop"
+				"navigationBarTitleText": "宠物商城"
+			}
+		},
+		{
+			"path": "pages/product/detail",
+			"style": {
+				"navigationBarTitleText": "商品详情"
+			}
+		},
+		{
+			"path": "pages/product/list",
+			"style": {
+				"navigationBarTitleText": "宠物用品"
+			}
+		},
+		{
+			"path": "pages/live-pet/list",
+			"style": {
+				"navigationBarTitleText": "买宠物"
+			}
+		},
+		{
+			"path": "pages/live-pet/detail",
+			"style": {
+				"navigationBarTitleText": "宠物详情"
+			}
+		},
+		{
+			"path": "pages/cart/cart",
+			"style": {
+				"navigationBarTitleText": "购物车"
+			}
+		},
+		{
+			"path": "pages/pet/index",
+			"style": {
+				"navigationBarTitleText": "我的宠物"
+			}
+		},
+		{
+			"path": "pages/pet/edit",
+			"style": {
+				"navigationBarTitleText": "编辑宠物"
+			}
+		},
+		{
+			"path": "pages/pet/detail",
+			"style": {
+				"navigationBarTitleText": "宠物详情"
+			}
+		},
+		{
+			"path": "pages/merchant/products",
+			"style": {
+				"navigationBarTitleText": "商家商品"
+			}
+		},
+		{
+			"path": "pages/admin/audit",
+			"style": {
+				"navigationBarTitleText": "商品审核"
 			}
 		}
 	],
@@ -12,6 +84,26 @@
 		"navigationBarTitleText": "Pet Shop",
 		"navigationBarBackgroundColor": "#FFFFFF",
 		"backgroundColor": "#F4F6F8"
+	},
+	"tabBar": {
+		"color": "#718093",
+		"selectedColor": "#1c6b56",
+		"backgroundColor": "#FFFFFF",
+		"borderStyle": "black",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "商城"
+			},
+			{
+				"pagePath": "pages/pet/index",
+				"text": "宠物"
+			},
+			{
+				"pagePath": "pages/account/account",
+				"text": "账号"
+			}
+		]
 	},
 	"uniIdRouter": {}
 }

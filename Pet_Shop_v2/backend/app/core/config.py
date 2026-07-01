@@ -1,10 +1,14 @@
 import os
 from dataclasses import dataclass
+from pathlib import Path
 
 from dotenv import load_dotenv
 
 
 load_dotenv()
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+DEFAULT_DATABASE_URL = f"sqlite:///{(BASE_DIR / 'pet_shop_v2.db').as_posix()}"
 
 
 @dataclass(frozen=True)
@@ -13,7 +17,7 @@ class Settings:
     api_prefix: str = os.getenv("API_PREFIX", "/api/v1")
     database_url: str = os.getenv(
         "DATABASE_URL",
-        "sqlite:///./pet_shop_v2.db",
+        DEFAULT_DATABASE_URL,
     )
     redis_url: str = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
     deepseek_api_key: str = os.getenv("DEEPSEEK_API_KEY", "")
