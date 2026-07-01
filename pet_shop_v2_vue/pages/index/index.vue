@@ -50,6 +50,10 @@
               <text class="field-label">本次验证码</text>
               <text class="mock-code">{{ mockCode }}</text>
             </view>
+            <view class="code-box neutral" v-else-if="smsProvider">
+              <text class="field-label">短信通道</text>
+              <text class="provider-text">{{ smsProvider }}</text>
+            </view>
 
             <button class="primary-button" :disabled="loading.login" @click="smsLogin">
               {{ loading.login ? '登录中' : '登录并获取 Token' }}
@@ -255,6 +259,7 @@ export default {
       healthText: '未连接',
       token: '',
       mockCode: '',
+      smsProvider: '',
       currentUser: null,
       roles: [],
       permissions: [],
@@ -390,9 +395,16 @@ export default {
           method: 'POST',
           data: { phone: this.loginForm.phone }
         })
-        this.mockCode = data.code
-        this.loginForm.code = data.code
-        this.toast('验证码已返回')
+        this.smsProvider = data.provider || ''
+        if (data.code) {
+          this.mockCode = data.code
+          this.loginForm.code = data.code
+          this.toast('验证码已返回')
+        } else {
+          this.mockCode = ''
+          this.loginForm.code = ''
+          this.toast('验证码已发送，请查看手机')
+        }
       } catch (error) {
         this.toast(error.message)
       } finally {
@@ -856,11 +868,21 @@ button[disabled] {
   background: #fff7e8;
 }
 
+.code-box.neutral {
+  background: #eef4f8;
+}
+
 .mock-code {
   font-size: 38rpx;
   font-weight: 700;
   color: #a55b00;
   letter-spacing: 0;
+}
+
+.provider-text {
+  font-size: 26rpx;
+  font-weight: 700;
+  color: #315b72;
 }
 
 .profile-card {

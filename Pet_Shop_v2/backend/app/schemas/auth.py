@@ -1,4 +1,5 @@
 from pydantic import BaseModel, Field
+from typing import Optional
 
 from app.schemas.user import UserPublic
 
@@ -9,8 +10,10 @@ class SmsSendRequest(BaseModel):
 
 class SmsSendResponse(BaseModel):
     phone: str
-    code: str
+    code: Optional[str] = None
     expires_in: int
+    provider: str
+    sent: bool
 
 
 class SmsLoginRequest(BaseModel):

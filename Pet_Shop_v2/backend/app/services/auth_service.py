@@ -8,6 +8,7 @@ from app.core.exceptions import BadRequestError, UnauthorizedError
 from app.core.security import create_access_token
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import SmsSendResponse, TokenResponse
+from app.services.sms_service import SmsSender
 from app.services.user_service import to_user_public
 
 
@@ -29,11 +30,18 @@ class AuthService:
         expires_at = datetime.utcnow() + timedelta(minutes=settings.sms_code_expire_minutes)
         self.repo.expire_active_sms_codes(phone)
         self.repo.create_sms_code(phone=phone, code=code, expires_at=expires_at)
+        result = SmsSender().send_login_code(
+            phone=phone,
+            code=code,
+            expire_minutes=settings.sms_code_expire_minutes,
+        )
         self.db.commit()
         return SmsSendResponse(
             phone=phone,
-            code=code,
+            code=code if result.provider == "mock" or settings.sms_debug_return_code else None,
             expires_in=settings.sms_code_expire_minutes * 60,
+            provider=result.provider,
+            sent=result.sent,
         )
 
     def sms_login(self, payload: object) -> TokenResponse:
