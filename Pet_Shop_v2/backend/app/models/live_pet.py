@@ -1,10 +1,11 @@
 from sqlalchemy import BigInteger, Column, Date, DateTime, ForeignKey, Integer, JSON, Numeric, String, Text, func
+from sqlalchemy.dialects import mysql
 
 from app.core.database import Base
 
 
-BigIntPk = BigInteger().with_variant(Integer, "sqlite")
-BigIntFk = BigInteger().with_variant(Integer, "sqlite")
+BigIntPk = BigInteger().with_variant(mysql.BIGINT(unsigned=True), "mysql").with_variant(Integer, "sqlite")
+BigIntFk = BigInteger().with_variant(mysql.BIGINT(unsigned=True), "mysql").with_variant(Integer, "sqlite")
 
 
 class LivePet(Base):

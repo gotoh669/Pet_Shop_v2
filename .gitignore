@@ -11,6 +11,7 @@ fastapi-env/
 # Environment
 .env
 *.env.local
+Pet_Shop_v2/backend/env.py
 
 # Local databases
 *.db

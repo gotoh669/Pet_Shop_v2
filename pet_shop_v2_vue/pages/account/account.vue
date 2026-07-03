@@ -30,7 +30,7 @@
               <text class="panel-title">账号登录</text>
               <text class="panel-note">使用手机号验证码登录系统</text>
             </view>
-            <text class="panel-note">模拟验证码会直接返回</text>
+            <text class="panel-note">验证码将发送到手机</text>
           </view>
 
           <view class="form">
@@ -47,11 +47,6 @@
               <button class="secondary-button" :disabled="loading.sms" @click="sendSmsCode">
                 {{ loading.sms ? '发送中' : '发送验证码' }}
               </button>
-            </view>
-
-            <view class="code-box" v-if="mockCode">
-              <text class="field-label">本次验证码</text>
-              <text class="mock-code">{{ mockCode }}</text>
             </view>
 
             <button class="primary-button" :disabled="loading.login" @click="smsLogin">
@@ -229,7 +224,6 @@ export default {
       healthOk: false,
       healthText: '未连接',
       token: '',
-      mockCode: '',
       currentUser: null,
       roles: [],
       permissions: [],
@@ -390,9 +384,8 @@ export default {
           method: 'POST',
           data: { phone: this.loginForm.phone }
         })
-        this.mockCode = data.code
-        this.loginForm.code = data.code
-        this.toast('验证码已返回')
+        this.loginForm.code = ''
+        this.toast(data && data.sent ? '验证码已发送' : '发送成功')
       } catch (error) {
         this.toast(error.message)
       } finally {
@@ -441,7 +434,6 @@ export default {
       this.allRoles = []
       this.adminUsers = []
       this.adminTotal = 0
-      this.mockCode = ''
       this.loginForm.code = ''
       uni.removeStorageSync('petShopToken')
     },
@@ -937,22 +929,6 @@ page {
 
 button[disabled] {
   opacity: 0.55;
-}
-
-.code-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 18rpx 20rpx;
-  border-radius: 8rpx;
-  background: #fff7e8;
-}
-
-.mock-code {
-  font-size: 38rpx;
-  font-weight: 700;
-  color: #a55b00;
-  letter-spacing: 0;
 }
 
 .profile-card {

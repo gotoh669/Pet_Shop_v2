@@ -1,4 +1,4 @@
-from sqlalchemy import select, text
+from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
@@ -263,6 +263,9 @@ def seed_default_admin(db: Session) -> None:
 
 
 def seed_demo_products(db: Session) -> None:
+    if not table_has_columns("products", {"merchant_user_id", "category_id", "title"}):
+        return
+
     merchant = db.scalar(select(User).where(User.phone == "16600000000"))
     if not merchant:
         merchant = User(
@@ -315,6 +318,9 @@ def seed_demo_products(db: Session) -> None:
 
 
 def seed_demo_pets(db: Session) -> None:
+    if not table_has_columns("pet_profiles", {"user_id", "name", "visibility"}):
+        return
+
     user = db.scalar(select(User).where(User.phone == "13800138000"))
     if not user:
         user = User(
@@ -360,6 +366,9 @@ def seed_demo_pets(db: Session) -> None:
 
 
 def seed_demo_live_pets(db: Session) -> None:
+    if not table_has_columns("live_pets", {"merchant_user_id", "pet_code"}):
+        return
+
     merchant = db.scalar(select(User).where(User.phone == "16600000000"))
     if not merchant:
         return
@@ -381,3 +390,11 @@ def seed_demo_live_pets(db: Session) -> None:
         )
 
     db.commit()
+
+
+def table_has_columns(table_name: str, column_names: set[str]) -> bool:
+    inspector = inspect(engine)
+    if not inspector.has_table(table_name):
+        return False
+    existing = {column["name"] for column in inspector.get_columns(table_name)}
+    return column_names.issubset(existing)

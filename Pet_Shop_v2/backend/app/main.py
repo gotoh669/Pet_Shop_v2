@@ -7,7 +7,6 @@ from app.core.exceptions import register_exception_handlers
 from app.core.response import success
 from app.routers import api_router
 
-
 app = FastAPI(title=settings.app_name)
 
 allow_origins = (

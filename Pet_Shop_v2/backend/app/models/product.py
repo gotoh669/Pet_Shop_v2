@@ -12,12 +12,13 @@ from sqlalchemy import (
     UniqueConstraint,
     func,
 )
+from sqlalchemy.dialects import mysql
 
 from app.core.database import Base
 
 
-BigIntPk = BigInteger().with_variant(Integer, "sqlite")
-BigIntFk = BigInteger().with_variant(Integer, "sqlite")
+BigIntPk = BigInteger().with_variant(mysql.BIGINT(unsigned=True), "mysql").with_variant(Integer, "sqlite")
+BigIntFk = BigInteger().with_variant(mysql.BIGINT(unsigned=True), "mysql").with_variant(Integer, "sqlite")
 
 
 class ProductCategory(Base):
