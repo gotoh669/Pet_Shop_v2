@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import Base, engine
-from app.models import LivePet, Permission, PetProfile, Product, ProductCategory, Role, RolePermission, User, UserRole
+from app.models import LivePet, Order, OrderItem, Permission, PetProfile, Product, ProductCategory, Role, RolePermission, User, UserRole
 
 
 ROLE_DEFINITIONS = [

@@ -1,218 +1,119 @@
-﻿<template>
-  <view class="page">
-    <view class="topbar">
-      <view class="brand">
-        <image class="brand-logo" src="/static/logo.png" mode="aspectFit"></image>
-        <view>
-          <text class="brand-title">Pet Shop 管理台</text>
-          <text class="brand-subtitle">{{ isLoggedIn ? '登录者信息与权限' : '基础工程与用户模块' }}</text>
-        </view>
+<template>
+  <view class="page account-page">
+    <view class="topbar account-topbar">
+      <view>
+        <text class="title">账号中心</text>
+        <text class="subtitle">短信验证码登录、查看角色与权限</text>
       </view>
-      <view class="server-pill" :class="{ online: healthOk }">
-        <text class="dot"></text>
-        <text>{{ healthText }}</text>
+      <view class="top-actions">
+        <button class="ghost" @click="goHome">首页</button>
+        <button class="ghost" @click="goBack">返回</button>
       </view>
     </view>
 
-    <scroll-view class="workspace" scroll-y>
-      <view class="api-panel panel">
+    <view class="layout account-layout">
+      <view class="panel login-panel">
         <view class="panel-head">
-          <text class="panel-title">服务地址</text>
-          <button class="icon-button" @click="checkHealth">↻</button>
+          <text class="panel-title">{{ isLoggedIn ? '当前账号' : '账号登录' }}</text>
         </view>
-        <input class="field-input" v-model="apiBase" placeholder="http://127.0.0.1:8000/api/v1" />
+
+        <view v-if="!isLoggedIn">
+          <view class="field">
+            <text class="label">手机号</text>
+            <input class="input" v-model="loginForm.phone" type="number" placeholder="请输入手机号" />
+          </view>
+          <view class="inline">
+            <view class="field grow">
+              <text class="label">验证码</text>
+              <input class="input" v-model="loginForm.code" type="number" placeholder="6 位验证码" />
+            </view>
+            <button class="secondary fixed" @click="sendSmsCode">{{ loading.sms ? '发送中' : '发送验证码' }}</button>
+          </view>
+          <view class="code-box" v-if="mockCode">
+            <text>模拟验证码</text>
+            <text class="code">{{ mockCode }}</text>
+          </view>
+          <button class="primary wide" @click="smsLogin">{{ loading.login ? '登录中' : '登录系统' }}</button>
+        </view>
+
+        <view v-else class="profile">
+          <view class="avatar">{{ avatarLetter }}</view>
+          <view class="profile-main">
+            <text class="profile-name">{{ currentUser.nickname || '未命名用户' }}</text>
+            <text class="muted">{{ currentUser.phone }} · ID {{ currentUser.id }}</text>
+            <text class="muted">状态：{{ currentUser.status }}</text>
+          </view>
+          <view class="profile-actions">
+            <button class="secondary" @click="goProfileEdit">编辑资料</button>
+            <button class="danger" @click="logout">退出</button>
+          </view>
+        </view>
       </view>
 
-      <view class="login-screen" v-if="!isLoggedIn">
-        <view class="panel login-panel">
-          <view class="panel-head">
-            <view>
-              <text class="panel-title">账号登录</text>
-              <text class="panel-note">使用手机号验证码登录系统</text>
-            </view>
-            <text class="panel-note">验证码将发送到手机</text>
+      <view class="panel" v-if="isLoggedIn">
+        <view class="panel-head">
+          <text class="panel-title">角色权限</text>
+          <button class="ghost" @click="loadRolesAndPermissions">刷新</button>
+        </view>
+        <view class="cards">
+          <view class="mini-card">
+            <text class="mini-label">当前角色</text>
+            <text class="mini-value">{{ roleSummary }}</text>
           </view>
+          <view class="mini-card">
+            <text class="mini-label">权限数量</text>
+            <text class="mini-value">{{ permissions.length }}</text>
+          </view>
+        </view>
+        <view class="tag-list" v-if="permissions.length">
+          <text class="tag" v-for="permission in permissions" :key="permission.code">{{ permission.code }}</text>
+        </view>
+        <view class="empty" v-else>暂无权限数据</view>
+      </view>
+    </view>
 
-          <view class="form">
-            <view class="field">
-              <text class="field-label">手机号</text>
-              <input class="field-input" v-model="loginForm.phone" type="number" placeholder="请输入手机号" />
-            </view>
-
-            <view class="inline-actions">
-              <view class="field flex-field">
-                <text class="field-label">验证码</text>
-                <input class="field-input" v-model="loginForm.code" type="number" placeholder="6 位验证码" />
-              </view>
-              <button class="secondary-button" :disabled="loading.sms" @click="sendSmsCode">
-                {{ loading.sms ? '发送中' : '发送验证码' }}
-              </button>
-            </view>
-
-            <button class="primary-button" :disabled="loading.login" @click="smsLogin">
-              {{ loading.login ? '登录中' : '登录并获取 Token' }}
+    <view class="panel" v-if="canManageUsers">
+      <view class="panel-head">
+        <view>
+          <text class="panel-title">用户管理</text>
+          <text class="panel-note">管理员可维护用户状态与角色</text>
+        </view>
+        <button class="ghost" @click="loadAdminUsers">刷新</button>
+      </view>
+      <view class="filter">
+        <input class="input" v-model="adminQuery.keyword" placeholder="手机号 / 昵称" />
+        <picker :range="statusOptions" range-key="label" @change="onStatusFilterChange">
+          <view class="picker">{{ statusFilterLabel }}</view>
+        </picker>
+        <button class="primary query" @click="searchAdminUsers">查询</button>
+      </view>
+      <view class="user-table" v-if="adminUsers.length">
+        <view class="user-row head">
+          <text>用户</text>
+          <text>状态</text>
+          <text>角色</text>
+          <text>操作</text>
+        </view>
+        <view class="user-row" v-for="user in adminUsers" :key="user.id">
+          <view>
+            <text class="user-name">{{ user.nickname }}</text>
+            <text class="muted">{{ user.phone }} · ID {{ user.id }}</text>
+          </view>
+          <text>{{ user.status }}</text>
+          <view class="role-options">
+            <button class="role" :class="{ selected: user.roleDraft.includes(role.code) }" v-for="role in allRoles" :key="role.code" @click="toggleRoleDraft(user, role.code)">
+              {{ role.name }}
             </button>
           </view>
-        </view>
-      </view>
-
-      <view class="account-workspace" v-else>
-        <view class="account-summary panel">
-          <view class="profile-card account-profile">
-            <view class="avatar">{{ avatarLetter }}</view>
-            <view class="profile-meta">
-              <text class="profile-name">{{ currentUser.nickname || '未命名用户' }}</text>
-              <text class="muted">{{ currentUser.phone }}</text>
-              <text class="muted">用户 ID：{{ currentUser.id }} · 状态：{{ userStatusText }}</text>
-            </view>
-          </view>
-
-          <view class="account-metrics">
-            <view class="metric">
-              <text class="metric-label">当前角色</text>
-              <text class="metric-value">{{ roleSummary }}</text>
-            </view>
-            <view class="metric">
-              <text class="metric-label">权限数量</text>
-              <text class="metric-value">{{ permissionSummary }}</text>
-            </view>
-          </view>
-
-          <view class="account-actions">
-            <button class="text-button" @click="goProfileEdit">编辑资料</button>
-            <button class="text-button" @click="refreshAccount">刷新信息</button>
-            <button class="danger-button logout-button" @click="logout">退出登录</button>
-          </view>
-        </view>
-
-      <view class="grid lower">
-        <view class="panel">
-          <view class="panel-head">
-            <text class="panel-title">角色</text>
-            <button class="text-button" :disabled="!token" @click="loadRolesAndPermissions">刷新</button>
-          </view>
-          <view class="tag-list" v-if="roles.length">
-            <view class="tag" v-for="role in roles" :key="role.code">
-              <text>{{ role.name }}</text>
-              <text class="tag-code">{{ role.code }}</text>
-            </view>
-          </view>
-          <view class="empty-state" v-else>
-            <text>暂无角色</text>
-          </view>
-        </view>
-
-        <view class="panel">
-          <view class="panel-head">
-            <text class="panel-title">对应权限</text>
-            <text class="panel-note">{{ permissions.length }} 项</text>
-          </view>
-          <view class="permission-list" v-if="permissions.length">
-            <view class="permission-item" v-for="permission in permissions" :key="permission.code">
-              <text class="permission-name">{{ permission.name }}</text>
-              <text class="permission-code">{{ permission.code }}</text>
-            </view>
-          </view>
-          <view class="empty-state" v-else>
-            <text>暂无权限</text>
+          <view class="row-actions">
+            <button class="ghost" @click="saveUserRoles(user)">保存</button>
+            <button class="danger" v-if="user.status === 'active'" @click="setAdminUserStatus(user, 'disabled')">禁用</button>
+            <button class="secondary" v-else @click="setAdminUserStatus(user, 'active')">启用</button>
           </view>
         </view>
       </view>
-
-      <view class="panel" v-if="canManageUsers">
-        <view class="panel-head">
-          <view>
-            <text class="panel-title">用户管理</text>
-            <text class="panel-note admin-note">管理员接口 /api/v1/admin/users</text>
-          </view>
-          <button class="text-button" :disabled="loading.adminUsers" @click="loadAdminUsers">
-            {{ loading.adminUsers ? '加载中' : '刷新' }}
-          </button>
-        </view>
-
-        <view class="admin-toolbar">
-          <view class="field search-field">
-            <text class="field-label">搜索</text>
-            <input class="field-input" v-model="adminQuery.keyword" placeholder="手机号 / 昵称" />
-          </view>
-          <view class="field status-field">
-            <text class="field-label">状态</text>
-            <picker :range="statusOptions" range-key="label" @change="onStatusFilterChange">
-              <view class="picker-input">{{ statusFilterLabel }}</view>
-            </picker>
-          </view>
-          <button class="secondary-button admin-search-button" @click="searchAdminUsers">查询</button>
-        </view>
-
-        <view class="admin-list" v-if="adminUsers.length">
-          <view class="user-row" v-for="user in adminUsers" :key="user.id">
-            <view class="user-main">
-              <view class="avatar small">{{ user.nickname ? user.nickname.slice(0, 1).toUpperCase() : 'U' }}</view>
-              <view class="user-info">
-                <view class="user-line">
-                  <text class="user-name">{{ user.nickname }}</text>
-                  <text class="status-badge" :class="{ disabled: user.status !== 'active' }">{{ user.status }}</text>
-                </view>
-                <text class="muted">{{ user.phone }} · ID {{ user.id }}</text>
-                <text class="muted">登录：{{ formatDate(user.last_login_at) }}</text>
-              </view>
-            </view>
-
-            <view class="role-editor">
-              <view class="role-options">
-                <button
-                  class="role-option"
-                  :class="{ selected: user.roleDraft.includes(role.code) }"
-                  v-for="role in allRoles"
-                  :key="role.code"
-                  @click="toggleRoleDraft(user, role.code)"
-                >
-                  {{ role.name }}
-                </button>
-              </view>
-              <view class="row-actions">
-                <button class="text-button" @click="saveUserRoles(user)">保存角色</button>
-                <button
-                  class="danger-button"
-                  v-if="user.status === 'active'"
-                  @click="setAdminUserStatus(user, 'disabled')"
-                >
-                  禁用
-                </button>
-                <button class="text-button" v-else @click="setAdminUserStatus(user, 'active')">
-                  启用
-                </button>
-              </view>
-            </view>
-          </view>
-        </view>
-
-        <view class="empty-state" v-else>
-          <text>暂无用户数据</text>
-        </view>
-
-        <view class="pagination">
-          <button class="text-button" :disabled="adminQuery.page <= 1" @click="changeAdminPage(-1)">上一页</button>
-          <text class="page-text">{{ adminPageText }}</text>
-          <button class="text-button" :disabled="adminQuery.page >= adminTotalPages" @click="changeAdminPage(1)">下一页</button>
-        </view>
-      </view>
-
-      <view class="panel">
-        <view class="panel-head">
-          <text class="panel-title">接口响应</text>
-          <button class="text-button" @click="clearLog">清空</button>
-        </view>
-        <view class="token-box" v-if="token">
-          <text class="field-label">Access Token</text>
-          <text class="token-text">{{ token }}</text>
-        </view>
-        <scroll-view class="log-box" scroll-y>
-          <text class="log-text">{{ requestLog || '暂无请求记录' }}</text>
-        </scroll-view>
-      </view>
-      </view>
-    </scroll-view>
+      <view class="empty" v-else>暂无用户数据</view>
+    </view>
   </view>
 </template>
 
@@ -221,123 +122,60 @@ export default {
   data() {
     return {
       apiBase: 'http://127.0.0.1:8000/api/v1',
-      healthOk: false,
-      healthText: '未连接',
       token: '',
+      mockCode: '',
       currentUser: null,
       roles: [],
       permissions: [],
       allRoles: [],
       adminUsers: [],
-      adminTotal: 0,
-      requestLog: '',
-      loginForm: {
-        phone: '13800138000',
-        code: ''
-      },
-      profileForm: {
-        nickname: '',
-        city: '',
-        bio: '',
-        gender: 'unknown',
-        has_pet: false,
-        pet_count: 0
-      },
-      genderOptions: [
-        { label: '未知', value: 'unknown' },
-        { label: '男', value: 'male' },
-        { label: '女', value: 'female' }
-      ],
+      loginForm: { phone: '13800138000', code: '' },
       statusOptions: [
         { label: '全部', value: '' },
         { label: '启用', value: 'active' },
         { label: '禁用', value: 'disabled' }
       ],
-      adminQuery: {
-        page: 1,
-        page_size: 10,
-        keyword: '',
-        status: ''
-      },
-      loading: {
-        sms: false,
-        login: false,
-        profile: false,
-        adminUsers: false,
-        adminAction: false
-      }
+      adminQuery: { page: 1, page_size: 10, keyword: '', status: '' },
+      loading: { sms: false, login: false }
     }
   },
   computed: {
-    isLoggedIn() {
-      return Boolean(this.token && this.currentUser)
-    },
+    isLoggedIn() { return Boolean(this.token && this.currentUser) },
     avatarLetter() {
       const name = this.currentUser && this.currentUser.nickname
       return name ? name.slice(0, 1).toUpperCase() : 'P'
     },
     roleSummary() {
-      if (!this.roles.length) {
-        return '暂无角色'
-      }
-      return this.roles.map(role => role.name).join('、')
-    },
-    permissionSummary() {
-      return this.permissions.length ? `${this.permissions.length} 项权限` : '暂无权限'
-    },
-    userStatusText() {
-      if (!this.currentUser || !this.currentUser.status) {
-        return '未知'
-      }
-      return this.currentUser.status === 'active' ? '启用' : this.currentUser.status
-    },
-    genderLabel() {
-      const item = this.genderOptions.find(option => option.value === this.profileForm.gender)
-      return item ? item.label : '未知'
-    },
-    statusFilterLabel() {
-      const item = this.statusOptions.find(option => option.value === this.adminQuery.status)
-      return item ? item.label : '全部'
+      return this.roles.length ? this.roles.map(role => role.name).join('、') : '暂无角色'
     },
     canManageUsers() {
       return this.permissions.some(permission => permission.code === 'user:manage')
     },
-    adminTotalPages() {
-      return Math.max(1, Math.ceil(this.adminTotal / this.adminQuery.page_size))
-    },
-    adminPageText() {
-      return `第 ${this.adminQuery.page} / ${this.adminTotalPages} 页，共 ${this.adminTotal} 人`
+    statusFilterLabel() {
+      const item = this.statusOptions.find(option => option.value === this.adminQuery.status)
+      return item ? item.label : '全部'
     }
   },
   onLoad() {
     const savedBase = uni.getStorageSync('petShopApiBase')
     const savedToken = uni.getStorageSync('petShopToken')
-    if (savedBase) {
-      this.apiBase = savedBase
-    }
+    if (savedBase) this.apiBase = savedBase
     if (savedToken) {
       this.token = savedToken
       this.loadCurrentUser()
       this.loadRolesAndPermissions()
     }
-    this.checkHealth()
   },
   onShow() {
-    const profileUpdated = uni.getStorageSync('petShopProfileUpdated')
-    if (profileUpdated && this.token) {
+    if (uni.getStorageSync('petShopProfileUpdated') && this.token) {
       uni.removeStorageSync('petShopProfileUpdated')
-      this.refreshAccount()
+      this.loadCurrentUser()
     }
   },
   methods: {
     request(options) {
       const url = options.rawUrl || `${this.apiBase}${options.url}`
-      const header = Object.assign(
-        { 'content-type': 'application/json' },
-        this.token ? { Authorization: `Bearer ${this.token}` } : {},
-        options.header || {}
-      )
-
+      const header = Object.assign({ 'content-type': 'application/json' }, this.token ? { Authorization: `Bearer ${this.token}` } : {})
       return new Promise((resolve, reject) => {
         uni.request({
           url,
@@ -345,47 +183,21 @@ export default {
           data: options.data || {},
           header,
           success: response => {
-            this.writeLog(options.method || 'GET', url, response.data)
-            if (response.statusCode >= 200 && response.statusCode < 300 && response.data && response.data.code === 0) {
-              resolve(response.data.data)
-              return
-            }
-            const message = response.data && response.data.message ? response.data.message : '请求失败'
-            reject(new Error(message))
+            if (response.statusCode >= 200 && response.statusCode < 300 && response.data && response.data.code === 0) return resolve(response.data.data)
+            reject(new Error(response.data && response.data.message ? response.data.message : '请求失败'))
           },
-          fail: error => {
-            this.writeLog(options.method || 'GET', url, error)
-            reject(new Error(error.errMsg || '网络连接失败'))
-          }
+          fail: error => reject(new Error(error.errMsg || '网络连接失败'))
         })
       })
     },
-    async checkHealth() {
-      const root = this.apiBase.replace(/\/api\/v1\/?$/, '')
-      try {
-        const data = await this.request({ rawUrl: `${root}/health` })
-        this.healthOk = data && data.status === 'ok'
-        this.healthText = this.healthOk ? '服务在线' : '服务异常'
-      } catch (error) {
-        this.healthOk = false
-        this.healthText = '未连接'
-      }
-    },
     async sendSmsCode() {
-      if (!this.loginForm.phone) {
-        this.toast('请输入手机号')
-        return
-      }
+      if (!this.loginForm.phone) return this.toast('请输入手机号')
       this.loading.sms = true
       try {
-        uni.setStorageSync('petShopApiBase', this.apiBase)
-        const data = await this.request({
-          url: '/auth/sms/send',
-          method: 'POST',
-          data: { phone: this.loginForm.phone }
-        })
-        this.loginForm.code = ''
-        this.toast(data && data.sent ? '验证码已发送' : '发送成功')
+        const data = await this.request({ url: '/auth/sms/send', method: 'POST', data: { phone: this.loginForm.phone } })
+        this.mockCode = data.code
+        this.loginForm.code = data.code
+        this.toast('验证码已返回')
       } catch (error) {
         this.toast(error.message)
       } finally {
@@ -393,192 +205,71 @@ export default {
       }
     },
     async smsLogin() {
-      if (!this.loginForm.phone || !this.loginForm.code) {
-        this.toast('请输入手机号和验证码')
-        return
-      }
+      if (!this.loginForm.phone || !this.loginForm.code) return this.toast('请输入手机号和验证码')
       this.loading.login = true
       try {
-        const data = await this.request({
-          url: '/auth/sms/login',
-          method: 'POST',
-          data: {
-            phone: this.loginForm.phone,
-            code: this.loginForm.code
-          }
-        })
+        const data = await this.request({ url: '/auth/sms/login', method: 'POST', data: this.loginForm })
         this.token = data.access_token
-        uni.setStorageSync('petShopToken', this.token)
         this.currentUser = data.user
-        this.syncProfile(data.user)
+        uni.setStorageSync('petShopToken', this.token)
         await this.loadRolesAndPermissions()
         this.toast('登录成功')
+        setTimeout(() => {
+          uni.reLaunch({ url: '/pages/index/index' })
+        }, 500)
       } catch (error) {
         this.toast(error.message)
       } finally {
         this.loading.login = false
       }
     },
-    async refreshAccount() {
-      await this.loadCurrentUser()
-      await this.loadRolesAndPermissions()
-    },
-    goProfileEdit() {
-      uni.navigateTo({ url: '/pages/account/profile' })
-    },
-    clearSession() {
-      this.token = ''
-      this.currentUser = null
-      this.roles = []
-      this.permissions = []
-      this.allRoles = []
-      this.adminUsers = []
-      this.adminTotal = 0
-      this.loginForm.code = ''
-      uni.removeStorageSync('petShopToken')
-    },
-    logout() {
-      this.clearSession()
-      this.toast('已退出登录')
-    },
     async loadCurrentUser() {
-      if (!this.token) {
-        return
-      }
-      try {
-        const data = await this.request({ url: '/users/me' })
-        this.currentUser = data
-        this.syncProfile(data)
-      } catch (error) {
-        this.toast(error.message)
-      }
-    },
-    async saveProfile() {
-      if (!this.token) {
-        this.toast('请先登录')
-        return
-      }
-      this.loading.profile = true
-      try {
-        const data = await this.request({
-          url: '/users/me',
-          method: 'PUT',
-          data: this.profileForm
-        })
-        this.currentUser = data
-        this.syncProfile(data)
-        this.toast('资料已保存')
-      } catch (error) {
-        this.toast(error.message)
-      } finally {
-        this.loading.profile = false
-      }
+      if (!this.token) return
+      try { this.currentUser = await this.request({ url: '/users/me' }) } catch (error) { this.toast(error.message) }
     },
     async loadRolesAndPermissions() {
-      if (!this.token) {
-        return
-      }
+      if (!this.token) return
       try {
-        const roles = await this.request({ url: '/users/me/roles' })
-        const permissions = await this.request({ url: '/users/me/permissions' })
-        this.roles = roles || []
-        this.permissions = permissions || []
+        this.roles = await this.request({ url: '/users/me/roles' }) || []
+        this.permissions = await this.request({ url: '/users/me/permissions' }) || []
         if (this.canManageUsers) {
           await this.loadAllRoles()
           await this.loadAdminUsers()
-        } else {
-          this.adminUsers = []
-          this.adminTotal = 0
         }
       } catch (error) {
         this.toast(error.message)
       }
     },
     async loadAllRoles() {
-      if (!this.token) {
-        return
-      }
-      try {
-        const roles = await this.request({ url: '/roles' })
-        this.allRoles = roles || []
-      } catch (error) {
-        this.toast(error.message)
-      }
+      try { this.allRoles = await this.request({ url: '/roles' }) || [] } catch (error) { this.toast(error.message) }
     },
     async loadAdminUsers() {
-      if (!this.canManageUsers) {
-        return
-      }
-      this.loading.adminUsers = true
-      const params = [
-        `page=${this.adminQuery.page}`,
-        `page_size=${this.adminQuery.page_size}`
-      ]
-      if (this.adminQuery.keyword) {
-        params.push(`keyword=${encodeURIComponent(this.adminQuery.keyword)}`)
-      }
-      if (this.adminQuery.status) {
-        params.push(`status=${encodeURIComponent(this.adminQuery.status)}`)
-      }
+      if (!this.canManageUsers) return
+      const params = [`page=${this.adminQuery.page}`, `page_size=${this.adminQuery.page_size}`]
+      if (this.adminQuery.keyword) params.push(`keyword=${encodeURIComponent(this.adminQuery.keyword)}`)
+      if (this.adminQuery.status) params.push(`status=${this.adminQuery.status}`)
       try {
         const data = await this.request({ url: `/admin/users?${params.join('&')}` })
-        this.adminTotal = data.total || 0
-        this.adminUsers = (data.items || []).map(user => this.normalizeAdminUser(user))
+        this.adminUsers = (data.items || []).map(user => Object.assign({}, user, { roleDraft: (user.roles || []).map(role => role.code) }))
       } catch (error) {
         this.toast(error.message)
-      } finally {
-        this.loading.adminUsers = false
       }
     },
     searchAdminUsers() {
       this.adminQuery.page = 1
       this.loadAdminUsers()
     },
-    changeAdminPage(delta) {
-      const nextPage = this.adminQuery.page + delta
-      if (nextPage < 1 || nextPage > this.adminTotalPages) {
-        return
-      }
-      this.adminQuery.page = nextPage
-      this.loadAdminUsers()
-    },
     onStatusFilterChange(event) {
-      const index = Number(event.detail.value)
-      this.adminQuery.status = this.statusOptions[index].value
-    },
-    normalizeAdminUser(user) {
-      return Object.assign({}, user, {
-        roleDraft: (user.roles || []).map(role => role.code)
-      })
-    },
-    replaceAdminUser(updatedUser) {
-      const normalized = this.normalizeAdminUser(updatedUser)
-      this.adminUsers = this.adminUsers.map(user => (
-        user.id === normalized.id ? normalized : user
-      ))
+      this.adminQuery.status = this.statusOptions[Number(event.detail.value)].value
     },
     toggleRoleDraft(user, roleCode) {
-      if (user.roleDraft.includes(roleCode)) {
-        user.roleDraft = user.roleDraft.filter(code => code !== roleCode)
-      } else {
-        user.roleDraft = user.roleDraft.concat(roleCode)
-      }
+      user.roleDraft = user.roleDraft.includes(roleCode) ? user.roleDraft.filter(code => code !== roleCode) : user.roleDraft.concat(roleCode)
     },
     async saveUserRoles(user) {
-      if (!user.roleDraft.length) {
-        this.toast('至少保留一个角色')
-        return
-      }
+      if (!user.roleDraft.length) return this.toast('至少保留一个角色')
       try {
-        const data = await this.request({
-          url: `/admin/users/${user.id}/roles`,
-          method: 'PUT',
-          data: { role_codes: user.roleDraft }
-        })
-        this.replaceAdminUser(data)
-        if (this.currentUser && this.currentUser.id === data.id) {
-          await this.loadRolesAndPermissions()
-        }
+        await this.request({ url: `/admin/users/${user.id}/roles`, method: 'PUT', data: { role_codes: user.roleDraft } })
+        await this.loadAdminUsers()
         this.toast('角色已保存')
       } catch (error) {
         this.toast(error.message)
@@ -586,690 +277,104 @@ export default {
     },
     async setAdminUserStatus(user, status) {
       try {
-        const data = await this.request({
-          url: `/admin/users/${user.id}/${status === 'active' ? 'enable' : 'disable'}`,
-          method: 'POST'
-        })
-        this.replaceAdminUser(data)
-        this.toast(status === 'active' ? '用户已启用' : '用户已禁用')
+        await this.request({ url: `/admin/users/${user.id}/${status === 'active' ? 'enable' : 'disable'}`, method: 'POST' })
+        await this.loadAdminUsers()
       } catch (error) {
         this.toast(error.message)
       }
     },
-    syncProfile(user) {
-      this.profileForm = {
-        nickname: user.nickname || '',
-        city: user.city || '',
-        bio: user.bio || '',
-        gender: user.gender || 'unknown',
-        has_pet: Boolean(user.has_pet),
-        pet_count: Number(user.pet_count || 0)
-      }
+    goProfileEdit() { uni.navigateTo({ url: '/pages/account/profile' }) },
+    goHome() { uni.reLaunch({ url: '/pages/index/index' }) },
+    goBack() {
+      const pages = getCurrentPages()
+      if (pages.length > 1) return uni.navigateBack({ delta: 1 })
+      this.goHome()
     },
-    onGenderChange(event) {
-      const index = Number(event.detail.value)
-      this.profileForm.gender = this.genderOptions[index].value
+    logout() {
+      this.token = ''
+      this.currentUser = null
+      this.roles = []
+      this.permissions = []
+      this.allRoles = []
+      this.adminUsers = []
+      uni.removeStorageSync('petShopToken')
     },
-    onHasPetChange(event) {
-      this.profileForm.has_pet = Boolean(event.detail.value)
-    },
-    formatDate(value) {
-      if (!value) {
-        return '暂无'
-      }
-      return String(value).replace('T', ' ').slice(0, 19)
-    },
-    writeLog(method, url, data) {
-      const time = new Date().toLocaleTimeString()
-      const content = JSON.stringify(data, null, 2)
-      this.requestLog = `[${time}] ${method} ${url}\n${content}\n\n${this.requestLog}`.slice(0, 6000)
-    },
-    clearLog() {
-      this.requestLog = ''
-    },
-    toast(title) {
-      uni.showToast({
-        title,
-        icon: 'none'
-      })
-    }
+    toast(title) { uni.showToast({ title, icon: 'none' }) }
   }
 }
 </script>
 
 <style>
-page {
-  background: #f4f6f8;
-}
-
-.page {
-  min-height: 100vh;
-  color: #18202c;
-}
-
-.topbar {
+page { background: #f3f5f8; }
+.account-page { min-height: 100vh; color: #172033; }
+.account-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 28rpx 32rpx;
-  background: #ffffff;
-  border-bottom: 1rpx solid #e7ebef;
+  padding: 22px 26px;
+  border: 1px solid #e2e8ef;
+  border-radius: 8px;
+  background: #fff;
 }
-
-.brand {
+.title { display: block; font-size: 26px; font-weight: 700; }
+.subtitle, .muted, .panel-note { display: block; margin-top: 6px; color: #6b7788; font-size: 14px; line-height: 1.55; }
+.top-actions, .layout, .panel-head, .inline, .filter, .profile, .row-actions { display: flex; gap: 12px; }
+.account-layout { align-items: stretch; margin-top: 18px; }
+.panel { flex: 1; min-width: 0; padding: 22px; border: 1px solid #e2e8ef; border-radius: 8px; background: #fff; }
+.login-panel { max-width: 520px; }
+.panel-head { align-items: center; justify-content: space-between; margin-bottom: 18px; }
+.panel-title { font-size: 18px; font-weight: 700; }
+.field { margin-bottom: 14px; }
+.grow { flex: 1; }
+.label { display: block; margin-bottom: 8px; color: #667387; font-size: 13px; }
+.input, .picker { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #d9e0e8; border-radius: 6px; background: #fbfcfd; font-size: 14px; line-height: 40px; }
+.fixed { width: 136px; margin-top: 27px; }
+.primary, .secondary, .ghost, .danger, .role {
   display: flex;
   align-items: center;
-  min-width: 0;
-}
-
-.brand-logo {
-  width: 72rpx;
-  height: 72rpx;
-  margin-right: 20rpx;
-}
-
-.brand-title {
-  display: block;
-  font-size: 34rpx;
-  font-weight: 700;
-  color: #162033;
-}
-
-.brand-subtitle {
-  display: block;
-  margin-top: 6rpx;
-  font-size: 22rpx;
-  color: #687485;
-}
-
-.server-pill {
-  display: flex;
-  align-items: center;
-  height: 52rpx;
-  padding: 0 18rpx;
-  border-radius: 26rpx;
-  background: #eef1f4;
-  color: #6d7785;
-  font-size: 22rpx;
+  justify-content: center;
+  height: 36px;
+  margin: 0;
+  padding: 0 14px;
+  border-radius: 6px;
+  font-size: 14px;
   white-space: nowrap;
-}
-
-.server-pill.online {
-  background: #e3f6ec;
-  color: #16834b;
-}
-
-.dot {
-  width: 12rpx;
-  height: 12rpx;
-  margin-right: 10rpx;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.workspace {
-  height: calc(100vh - 129rpx);
-  box-sizing: border-box;
-  padding: 28rpx;
-}
-
-.grid {
-  display: flex;
-  gap: 24rpx;
-}
-
-.grid > .panel {
-  flex: 1;
-  min-width: 0;
-}
-
-.lower {
-  margin-top: 24rpx;
-}
-
-.panel {
-  box-sizing: border-box;
-  padding: 28rpx;
-  margin-bottom: 24rpx;
-  border: 1rpx solid #e2e8ef;
-  border-radius: 8rpx;
-  background: #ffffff;
-}
-
-.api-panel {
-  margin-bottom: 24rpx;
-}
-
-.login-screen {
-  display: flex;
-  justify-content: center;
-  min-height: calc(100vh - 360rpx);
-}
-
-.login-panel {
-  width: 100%;
-  max-width: 940rpx;
-  align-self: flex-start;
-}
-
-.account-workspace {
-  min-height: 0;
-}
-
-.account-summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24rpx;
-}
-
-.account-profile {
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-}
-
-.account-metrics {
-  display: flex;
-  flex: 1;
-  gap: 16rpx;
-  min-width: 0;
-}
-
-.metric {
-  flex: 1;
-  min-width: 0;
-  padding: 18rpx;
-  border-radius: 8rpx;
-  background: #f4f8f7;
-}
-
-.metric-label {
-  display: block;
-  margin-bottom: 8rpx;
-  color: #687485;
-  font-size: 22rpx;
-}
-
-.metric-value {
-  display: block;
-  color: #172033;
-  font-size: 26rpx;
-  font-weight: 700;
-  word-break: break-all;
-}
-
-.account-actions {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.logout-button {
-  min-width: 132rpx;
-}
-
-.panel-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 22rpx;
-}
-
-.panel-title {
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #18202c;
-}
-
-.panel-note {
-  display: block;
-  font-size: 22rpx;
-  color: #7a8492;
-}
-
-.admin-note {
-  margin-top: 8rpx;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 18rpx;
-}
-
-.compact {
-  margin-top: 20rpx;
-}
-
-.field {
-  min-width: 0;
-}
-
-.flex-field {
-  flex: 1;
-}
-
-.field-label {
-  display: block;
-  margin-bottom: 10rpx;
-  font-size: 22rpx;
-  color: #667387;
-}
-
-.field-input,
-.picker-input {
-  box-sizing: border-box;
-  width: 100%;
-  height: 78rpx;
-  padding: 0 22rpx;
-  border: 1rpx solid #d9e0e8;
-  border-radius: 8rpx;
-  background: #fbfcfd;
-  color: #172033;
-  font-size: 26rpx;
-  line-height: 78rpx;
-}
-
-.inline-actions {
-  display: flex;
-  align-items: flex-end;
-  gap: 18rpx;
-}
-
-.split-row {
-  display: flex;
-  gap: 18rpx;
-}
-
-.half {
-  flex: 1;
-}
-
-.primary-button,
-.secondary-button,
-.text-button,
-.icon-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  margin: 0;
-  border-radius: 8rpx;
-  font-size: 26rpx;
-}
-
-.primary-button {
-  height: 82rpx;
-  color: #ffffff;
-  background: #1c6b56;
-}
-
-.secondary-button {
-  width: 184rpx;
-  height: 78rpx;
-  color: #1c6b56;
-  background: #e8f3ef;
-}
-
-.text-button,
-.icon-button {
-  height: 48rpx;
-  padding: 0 18rpx;
-  color: #1c6b56;
-  background: #edf5f2;
-  font-size: 22rpx;
-}
-
-.icon-button {
-  width: 52rpx;
-  padding: 0;
-  font-size: 28rpx;
-}
-
-button[disabled] {
-  opacity: 0.55;
-}
-
-.profile-card {
-  display: flex;
-  align-items: center;
-  padding: 8rpx 0 12rpx;
-}
-
-.avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 84rpx;
-  height: 84rpx;
-  margin-right: 18rpx;
-  border-radius: 50%;
-  background: #1c6b56;
-  color: #ffffff;
-  font-size: 32rpx;
-  font-weight: 700;
-}
-
-.profile-meta {
-  min-width: 0;
-}
-
-.profile-name {
-  display: block;
-  font-size: 30rpx;
-  font-weight: 700;
-  color: #172033;
-}
-
-.muted {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 23rpx;
-  color: #718093;
-}
-
-.empty-state {
-  padding: 34rpx 20rpx;
-  border-radius: 8rpx;
-  background: #f7f9fb;
-  color: #798493;
-  font-size: 24rpx;
-  text-align: center;
-}
-
-.tag-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 14rpx;
-}
-
-.tag {
-  display: flex;
-  flex-direction: column;
-  min-width: 150rpx;
-  padding: 16rpx 18rpx;
-  border-radius: 8rpx;
-  background: #eef7f3;
-  color: #1c6b56;
-  font-size: 25rpx;
-}
-
-.tag-code {
-  margin-top: 6rpx;
-  font-size: 21rpx;
-  color: #5b7d72;
-}
-
-.permission-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.permission-item {
-  box-sizing: border-box;
-  flex: 1 1 46%;
-  min-height: 82rpx;
-  padding: 14rpx 16rpx;
-  border: 1rpx solid #e1e7ed;
-  border-radius: 8rpx;
-  background: #fbfcfd;
-}
-
-.permission-name {
-  display: block;
-  font-size: 24rpx;
-  color: #1f2a39;
-}
-
-.permission-code {
-  display: block;
-  margin-top: 8rpx;
-  font-size: 20rpx;
-  color: #738094;
-}
-
-.admin-toolbar {
-  display: flex;
-  align-items: flex-end;
-  gap: 18rpx;
-  margin-bottom: 22rpx;
-}
-
-.search-field {
-  flex: 1;
-}
-
-.status-field {
-  width: 210rpx;
-}
-
-.admin-search-button {
-  width: 132rpx;
-}
-
-.admin-list {
-  border: 1rpx solid #e4eaf0;
-  border-radius: 8rpx;
-  overflow: hidden;
-}
-
-.user-row {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 20rpx;
-  padding: 22rpx;
-  border-bottom: 1rpx solid #e8edf2;
-  background: #ffffff;
-}
-
-.user-row:last-child {
-  border-bottom: none;
-}
-
-.user-main {
-  display: flex;
-  flex: 1;
-  min-width: 0;
-}
-
-.avatar.small {
-  width: 68rpx;
-  height: 68rpx;
-  font-size: 26rpx;
-}
-
-.user-info {
-  min-width: 0;
-}
-
-.user-line {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 12rpx;
-}
-
-.user-name {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: #172033;
-}
-
-.status-badge {
-  height: 38rpx;
-  padding: 0 14rpx;
-  border-radius: 19rpx;
-  background: #e6f6ec;
-  color: #19804e;
-  font-size: 20rpx;
-  line-height: 38rpx;
-}
-
-.status-badge.disabled {
-  background: #f1f3f5;
-  color: #7b8490;
-}
-
-.role-editor {
-  width: 520rpx;
-}
-
-.role-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10rpx;
-}
-
-.role-option {
-  height: 50rpx;
-  padding: 0 16rpx;
-  margin: 0;
-  border-radius: 8rpx;
-  background: #f2f5f7;
-  color: #526172;
-  font-size: 22rpx;
-  line-height: 50rpx;
-}
-
-.role-option.selected {
-  background: #e2f2ec;
-  color: #1c6b56;
-}
-
-.row-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12rpx;
-  margin-top: 16rpx;
-}
-
-.danger-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  height: 48rpx;
-  padding: 0 18rpx;
-  margin: 0;
-  border-radius: 8rpx;
-  color: #a43333;
-  background: #faeeee;
-  font-size: 22rpx;
-}
-
-.pagination {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 18rpx;
-  margin-top: 20rpx;
-}
-
-.page-text {
-  color: #647285;
-  font-size: 23rpx;
-}
-
-.token-box {
-  padding: 18rpx;
-  margin-bottom: 18rpx;
-  border-radius: 8rpx;
-  background: #f4f8f7;
-}
-
-.token-text {
-  display: block;
-  word-break: break-all;
-  font-size: 21rpx;
-  line-height: 1.5;
-  color: #315b50;
-}
-
-.log-box {
-  height: 280rpx;
-  padding: 18rpx;
-  border-radius: 8rpx;
-  background: #101721;
   box-sizing: border-box;
 }
-
-.log-text {
-  white-space: pre-wrap;
-  word-break: break-all;
-  color: #d9e7f2;
-  font-size: 21rpx;
-  line-height: 1.55;
-}
-
-.switch-line {
-  display: flex;
-  align-items: center;
-  height: 78rpx;
-}
-
-.switch-text {
-  margin-left: 14rpx;
-  color: #526172;
-  font-size: 24rpx;
-}
-
-@media screen and (max-width: 700px) {
-  .topbar {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 18rpx;
-  }
-
-  .workspace {
-    height: calc(100vh - 190rpx);
-    padding: 20rpx;
-  }
-
-  .grid {
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .login-screen {
-    min-height: auto;
-  }
-
-  .account-summary,
-  .account-metrics,
-  .account-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .permission-item {
-    flex-basis: 100%;
-  }
-
-  .inline-actions,
-  .split-row,
-  .admin-toolbar,
-  .user-row {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .secondary-button {
-    width: 100%;
-  }
-
-  .status-field,
-  .admin-search-button,
-  .role-editor {
-    width: 100%;
-  }
-
-  .row-actions,
-  .pagination {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
+.primary { color: #fff; background: #1f6b57; }
+.secondary, .ghost { color: #1f6b57; background: #e8f3ef; }
+.danger { color: #a43333; background: #faeeee; }
+.wide { width: 100%; height: 42px; margin-top: 14px; }
+.code-box { display: flex; justify-content: space-between; padding: 12px; border-radius: 6px; background: #fff7e8; color: #8a5200; }
+.code { font-size: 20px; font-weight: 700; }
+.avatar { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; color: #fff; background: #1f6b57; font-weight: 700; }
+.profile { align-items: center; }
+.profile-main { flex: 1; min-width: 0; }
+.profile-name, .user-name { display: block; font-size: 16px; font-weight: 700; }
+.profile-actions { display: flex; gap: 10px; }
+.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.mini-card { padding: 16px; border-radius: 8px; background: #f5f8f7; }
+.mini-label { display: block; color: #6b7788; font-size: 13px; }
+.mini-value { display: block; margin-top: 8px; font-size: 18px; font-weight: 700; }
+.tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+.tag { padding: 6px 10px; border-radius: 6px; color: #1f6b57; background: #e8f3ef; font-size: 12px; }
+.filter { margin-bottom: 16px; }
+.filter .input { flex: 1; }
+.picker { width: 160px; }
+.query { width: 90px; }
+.user-table { border: 1px solid #edf1f5; border-radius: 8px; overflow: hidden; }
+.user-row { display: grid; grid-template-columns: minmax(220px, 1.2fr) 110px minmax(260px, 1.4fr) minmax(230px, 280px); gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid #edf1f5; }
+.user-row:last-child { border-bottom: none; }
+.head { color: #6b7788; background: #f7f9fb; font-weight: 700; }
+.role-options { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
+.row-actions { align-items: center; flex-wrap: nowrap; min-width: 0; }
+.role { height: 30px; color: #526172; background: #f2f5f7; font-size: 12px; }
+.role.selected { color: #1f6b57; background: #e8f3ef; }
+.empty { padding: 42px 20px; color: #798493; text-align: center; }
+@media screen and (max-width: 820px) {
+  .account-topbar, .account-layout, .inline, .filter, .profile { flex-direction: column; align-items: stretch; }
+  .login-panel { max-width: none; }
+  .fixed, .picker, .query { width: 100%; }
+  .user-row { grid-template-columns: 1fr; }
 }
 </style>
