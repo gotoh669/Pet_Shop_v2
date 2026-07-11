@@ -2,7 +2,7 @@
   <view class="page">
     <view class="toolbar">
       <view>
-        <text class="title">订单管理</text>
+        <text class="title">我的订单</text>
         <text class="subtitle">查看订单、模拟支付、商家发货和确认收货</text>
       </view>
       <view class="toolbar-actions">
@@ -163,28 +163,28 @@ export default {
 </script>
 
 <style>
-page { background: #f3f5f8; }
-.page { min-height: 100vh; padding: 24rpx; color: #172033; }
-.toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; }
+page { background: #f5f5f5; }
+.page { min-height: 100vh; padding: 24rpx; color: #1f1f1f; }
+.toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18rpx; padding: 22rpx 24rpx; border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: linear-gradient(90deg, #fff7f0, #fff); }
 .toolbar-actions, .filter, .actions { display: flex; gap: 10rpx; }
-.title { display: block; font-size: 36rpx; font-weight: 700; }
-.subtitle, .muted { display: block; margin-top: 8rpx; color: #6b7788; font-size: 23rpx; }
-.panel { border: 1rpx solid #e2e8ef; border-radius: 8rpx; background: #fff; }
+.title { display: block; color: #ff5000; font-size: 38rpx; font-weight: 800; }
+.subtitle, .muted { display: block; margin-top: 8rpx; color: #7b6659; font-size: 23rpx; }
+.panel { border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: #fff; box-shadow: 0 8rpx 24rpx rgba(255, 80, 0, .07); }
 .filter { padding: 18rpx; margin-bottom: 18rpx; }
-.picker { width: 220rpx; height: 70rpx; padding: 0 18rpx; border: 1rpx solid #d9e0e8; border-radius: 8rpx; background: #fbfcfd; font-size: 24rpx; line-height: 70rpx; }
+.picker { width: 220rpx; height: 70rpx; padding: 0 22rpx; border: 1rpx solid #f0d2c0; border-radius: 999rpx; background: #fff7f0; font-size: 24rpx; line-height: 70rpx; }
 .query { width: 110rpx; }
 .table { overflow: hidden; }
-.row { display: grid; grid-template-columns: minmax(260rpx, 1.5fr) 150rpx 140rpx minmax(260rpx, 1.4fr) minmax(320rpx, 420rpx); gap: 14rpx; align-items: center; padding: 18rpx; border-bottom: 1rpx solid #edf1f5; font-size: 24rpx; }
+.row { display: grid; grid-template-columns: minmax(260rpx, 1.5fr) 150rpx 140rpx minmax(260rpx, 1.4fr) minmax(320rpx, 420rpx); gap: 14rpx; align-items: center; padding: 20rpx; border-bottom: 1rpx solid #fff0e7; font-size: 24rpx; }
 .row:last-child { border-bottom: none; }
-.head { color: #6b7788; background: #f7f9fb; font-weight: 700; }
+.head { color: #a45f38; background: #fff7f0; font-weight: 700; }
 .order-no { display: block; font-size: 24rpx; font-weight: 700; word-break: break-all; }
-.price { color: #b74428; font-weight: 700; }
-.item { display: block; margin-bottom: 6rpx; color: #526172; font-size: 22rpx; }
+.price { color: #ff5000; font-weight: 900; }
+.item { display: block; margin-bottom: 6rpx; color: #6d5648; font-size: 22rpx; }
 .actions { align-items: center; flex-wrap: wrap; min-width: 0; }
-.primary, .ghost, .danger { display: flex; align-items: center; justify-content: center; height: 58rpx; margin: 0; padding: 0 16rpx; border-radius: 8rpx; font-size: 22rpx; white-space: nowrap; box-sizing: border-box; flex: 0 0 auto; }
-.primary { color: #fff; background: #1f6b57; }
-.ghost { color: #1f6b57; background: #e8f3ef; }
-.danger { color: #a43333; background: #faeeee; }
+.primary, .ghost, .danger { display: flex; align-items: center; justify-content: center; height: 58rpx; margin: 0; padding: 0 18rpx; border-radius: 999rpx; font-size: 22rpx; white-space: nowrap; box-sizing: border-box; flex: 0 0 auto; }
+.primary { color: #fff; background: linear-gradient(90deg, #ff7a1a, #ff3d00); }
+.ghost { color: #ff5000; background: #fff0e7; }
+.danger { color: #d93600; background: #fff0e8; }
 .empty { padding: 80rpx 20rpx; color: #798493; text-align: center; font-size: 26rpx; }
 .empty-btn { width: 180rpx; margin: 20rpx auto 0; }
 @media screen and (max-width: 820px) {

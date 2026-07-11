@@ -83,25 +83,25 @@ export default {
 </script>
 
 <style>
-page { background: #f3f5f8; }
-.page { min-height: 100vh; padding: 24rpx; color: #172033; }
-.panel { border: 1rpx solid #e2e8ef; border-radius: 8rpx; background: #fff; }
-.detail { display: grid; grid-template-columns: 420rpx minmax(0, 1fr); gap: 28rpx; padding: 24rpx; }
-.cover { width: 100%; height: 420rpx; border-radius: 8rpx; background: #edf1f4; }
-.title { display: block; font-size: 38rpx; font-weight: 700; }
-.subtitle { display: block; margin-top: 10rpx; color: #647285; font-size: 24rpx; }
+.page { min-height: 100vh; padding: 24rpx; color: #1f1f1f; }
+page { background: #f5f5f5; }
+.panel { border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: #fff; box-shadow: 0 10rpx 28rpx rgba(255, 80, 0, .08); }
+.detail { display: grid; grid-template-columns: 460rpx minmax(0, 1fr); gap: 30rpx; padding: 28rpx; }
+.cover { width: 100%; height: 460rpx; border-radius: 16rpx; background: #fff7f0; }
+.title { display: block; font-size: 40rpx; font-weight: 800; line-height: 1.35; }
+.subtitle { display: block; margin-top: 10rpx; color: #7b6659; font-size: 24rpx; }
 .price-line { display: flex; align-items: baseline; gap: 16rpx; margin-top: 22rpx; }
-.price { color: #b74428; font-size: 40rpx; font-weight: 700; }
+.price { color: #ff5000; font-size: 46rpx; font-weight: 900; }
 .original { color: #98a2af; font-size: 24rpx; text-decoration: line-through; }
-.stock { margin-left: auto; color: #718093; font-size: 23rpx; }
-.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; margin-top: 22rpx; padding: 18rpx; border-radius: 8rpx; background: #f7f9fb; color: #526172; font-size: 24rpx; }
+.stock { margin-left: auto; padding: 4rpx 12rpx; border-radius: 999rpx; color: #a45f38; background: #fff3ec; font-size: 23rpx; }
+.meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12rpx; margin-top: 22rpx; padding: 18rpx; border-radius: 14rpx; background: #fff7f0; color: #6d5648; font-size: 24rpx; }
 .section { margin-top: 22rpx; }
-.section-title { display: block; margin-bottom: 10rpx; font-size: 28rpx; font-weight: 700; }
-.body-text { color: #526172; font-size: 24rpx; line-height: 1.7; }
+.section-title { display: block; margin-bottom: 10rpx; font-size: 28rpx; font-weight: 800; }
+.body-text { color: #6d5648; font-size: 24rpx; line-height: 1.7; }
 .actions { display: flex; justify-content: flex-end; gap: 14rpx; margin-top: 28rpx; }
-.primary, .secondary { display: flex; align-items: center; justify-content: center; height: 68rpx; margin: 0; padding: 0 24rpx; border-radius: 8rpx; font-size: 25rpx; }
-.primary { color: #fff; background: #1f6b57; }
-.secondary { color: #1f6b57; background: #e8f3ef; }
+.primary, .secondary { display: flex; align-items: center; justify-content: center; height: 72rpx; margin: 0; padding: 0 32rpx; border-radius: 999rpx; font-size: 25rpx; font-weight: 700; }
+.primary { color: #fff; background: linear-gradient(90deg, #ff9f1a, #ff5000); }
+.secondary { color: #ff5000; background: #fff0e7; }
 .empty { padding: 120rpx 20rpx; color: #798493; text-align: center; font-size: 26rpx; }
 @media screen and (max-width: 760px) {
   .detail { grid-template-columns: 1fr; }

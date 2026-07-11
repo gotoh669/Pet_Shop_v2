@@ -15,8 +15,8 @@ export default {
 <style>
 page {
   box-sizing: border-box;
-  background: #f3f5f8;
-  color: #18202c;
+  background: #f5f5f5;
+  color: #1f1f1f;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -79,7 +79,9 @@ button::after {
 .panel,
 .metric,
 .card {
-  border-radius: 8px !important;
+  border-radius: 12px !important;
+  border-color: #f0e4dc !important;
+  box-shadow: 0 8px 24px rgba(200, 81, 20, .06) !important;
 }
 
 .hero,
@@ -136,7 +138,9 @@ button::after {
 .picker-input {
   height: 40px !important;
   padding: 0 12px !important;
-  border-radius: 6px !important;
+  border-color: #f0d2c0 !important;
+  border-radius: 999px !important;
+  background: #fff !important;
   font-size: 14px !important;
   line-height: 40px !important;
 }
@@ -159,9 +163,28 @@ button::after {
   min-height: 36px !important;
   height: 36px !important;
   padding: 0 14px !important;
-  border-radius: 6px !important;
+  border-radius: 999px !important;
   font-size: 14px !important;
   line-height: 36px !important;
+}
+
+.primary,
+.nav.active {
+  color: #fff !important;
+  background: linear-gradient(90deg, #ff7a1a, #ff3d00) !important;
+}
+
+.secondary,
+.ghost,
+.chip,
+.step {
+  color: #ff5000 !important;
+  background: #fff3ec !important;
+}
+
+.danger {
+  color: #d93600 !important;
+  background: #fff0e8 !important;
 }
 
 .wide {
@@ -204,7 +227,9 @@ button::after {
 }
 
 .price {
-  font-size: 18px !important;
+  color: #ff5000 !important;
+  font-size: 20px !important;
+  font-weight: 800 !important;
 }
 
 @media screen and (min-width: 1100px) {

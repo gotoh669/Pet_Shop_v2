@@ -305,29 +305,29 @@ export default {
 </script>
 
 <style>
-page { background: #f3f5f8; }
-.account-page { min-height: 100vh; color: #172033; }
+page { background: #f5f5f5; }
+.account-page { min-height: 100vh; color: #1f1f1f; }
 .account-topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 22px 26px;
-  border: 1px solid #e2e8ef;
-  border-radius: 8px;
-  background: #fff;
+  border: 1px solid #ffe0cc;
+  border-radius: 14px;
+  background: linear-gradient(90deg, #fff7f0, #fff);
 }
-.title { display: block; font-size: 26px; font-weight: 700; }
-.subtitle, .muted, .panel-note { display: block; margin-top: 6px; color: #6b7788; font-size: 14px; line-height: 1.55; }
+.title { display: block; color: #ff5000; font-size: 26px; font-weight: 800; }
+.subtitle, .muted, .panel-note { display: block; margin-top: 6px; color: #7b6659; font-size: 14px; line-height: 1.55; }
 .top-actions, .layout, .panel-head, .inline, .filter, .profile, .row-actions { display: flex; gap: 12px; }
 .account-layout { align-items: stretch; margin-top: 18px; }
-.panel { flex: 1; min-width: 0; padding: 22px; border: 1px solid #e2e8ef; border-radius: 8px; background: #fff; }
+.panel { flex: 1; min-width: 0; padding: 22px; border: 1px solid #ffe0cc; border-radius: 14px; background: #fff; box-shadow: 0 8px 24px rgba(255, 80, 0, .07); }
 .login-panel { max-width: 520px; }
 .panel-head { align-items: center; justify-content: space-between; margin-bottom: 18px; }
 .panel-title { font-size: 18px; font-weight: 700; }
 .field { margin-bottom: 14px; }
 .grow { flex: 1; }
-.label { display: block; margin-bottom: 8px; color: #667387; font-size: 13px; }
-.input, .picker { width: 100%; height: 40px; padding: 0 12px; border: 1px solid #d9e0e8; border-radius: 6px; background: #fbfcfd; font-size: 14px; line-height: 40px; }
+.label { display: block; margin-bottom: 8px; color: #8a614b; font-size: 13px; }
+.input, .picker { width: 100%; height: 40px; padding: 0 14px; border: 1px solid #f0d2c0; border-radius: 999px; background: #fff; font-size: 14px; line-height: 40px; }
 .fixed { width: 136px; margin-top: 27px; }
 .primary, .secondary, .ghost, .danger, .role {
   display: flex;
@@ -336,40 +336,40 @@ page { background: #f3f5f8; }
   height: 36px;
   margin: 0;
   padding: 0 14px;
-  border-radius: 6px;
+  border-radius: 999px;
   font-size: 14px;
   white-space: nowrap;
   box-sizing: border-box;
 }
-.primary { color: #fff; background: #1f6b57; }
-.secondary, .ghost { color: #1f6b57; background: #e8f3ef; }
-.danger { color: #a43333; background: #faeeee; }
+.primary { color: #fff; background: linear-gradient(90deg, #ff7a1a, #ff3d00); }
+.secondary, .ghost { color: #ff5000; background: #fff0e7; }
+.danger { color: #d93600; background: #fff0e8; }
 .wide { width: 100%; height: 42px; margin-top: 14px; }
 .code-box { display: flex; justify-content: space-between; padding: 12px; border-radius: 6px; background: #fff7e8; color: #8a5200; }
 .code { font-size: 20px; font-weight: 700; }
-.avatar { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; color: #fff; background: #1f6b57; font-weight: 700; }
+.avatar { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 50%; color: #fff; background: linear-gradient(135deg, #ff9f1a, #ff5000); font-weight: 700; }
 .profile { align-items: center; }
 .profile-main { flex: 1; min-width: 0; }
 .profile-name, .user-name { display: block; font-size: 16px; font-weight: 700; }
 .profile-actions { display: flex; gap: 10px; }
 .cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-.mini-card { padding: 16px; border-radius: 8px; background: #f5f8f7; }
-.mini-label { display: block; color: #6b7788; font-size: 13px; }
+.mini-card { padding: 16px; border-radius: 12px; background: #fff7f0; }
+.mini-label { display: block; color: #8a614b; font-size: 13px; }
 .mini-value { display: block; margin-top: 8px; font-size: 18px; font-weight: 700; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
-.tag { padding: 6px 10px; border-radius: 6px; color: #1f6b57; background: #e8f3ef; font-size: 12px; }
+.tag { padding: 6px 10px; border-radius: 999px; color: #ff5000; background: #fff0e7; font-size: 12px; }
 .filter { margin-bottom: 16px; }
 .filter .input { flex: 1; }
 .picker { width: 160px; }
 .query { width: 90px; }
-.user-table { border: 1px solid #edf1f5; border-radius: 8px; overflow: hidden; }
+.user-table { border: 1px solid #ffe0cc; border-radius: 12px; overflow: hidden; }
 .user-row { display: grid; grid-template-columns: minmax(220px, 1.2fr) 110px minmax(260px, 1.4fr) minmax(230px, 280px); gap: 12px; align-items: center; padding: 12px 16px; border-bottom: 1px solid #edf1f5; }
 .user-row:last-child { border-bottom: none; }
-.head { color: #6b7788; background: #f7f9fb; font-weight: 700; }
+.head { color: #a45f38; background: #fff7f0; font-weight: 700; }
 .role-options { display: flex; flex-wrap: wrap; gap: 8px; min-width: 0; }
 .row-actions { align-items: center; flex-wrap: nowrap; min-width: 0; }
-.role { height: 30px; color: #526172; background: #f2f5f7; font-size: 12px; }
-.role.selected { color: #1f6b57; background: #e8f3ef; }
+.role { height: 30px; color: #6d5648; background: #fff7f0; font-size: 12px; }
+.role.selected { color: #ff5000; background: #fff0e7; }
 .empty { padding: 42px 20px; color: #798493; text-align: center; }
 @media screen and (max-width: 820px) {
   .account-topbar, .account-layout, .inline, .filter, .profile { flex-direction: column; align-items: stretch; }

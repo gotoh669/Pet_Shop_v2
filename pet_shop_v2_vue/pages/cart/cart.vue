@@ -20,7 +20,7 @@
         <text>操作</text>
       </view>
       <view class="row" v-for="item in cart.items" :key="item.id">
-        <switch :checked="item.selected" color="#1f6b57" @change="updateSelected(item, $event)" />
+        <switch :checked="item.selected" color="#ff5000" @change="updateSelected(item, $event)" />
         <view class="product-cell">
           <image class="cover" :src="item.product.cover_url || fallbackImage" mode="aspectFit"></image>
           <view>
@@ -118,27 +118,27 @@ export default {
 </script>
 
 <style>
-page { background: #f3f5f8; }
-.page { min-height: 100vh; padding: 24rpx; color: #172033; }
-.panel { border: 1rpx solid #e2e8ef; border-radius: 8rpx; background: #fff; }
-.summary { display: flex; align-items: center; justify-content: space-between; padding: 24rpx; margin-bottom: 18rpx; }
+page { background: #f5f5f5; }
+.page { min-height: 100vh; padding: 24rpx; color: #1f1f1f; }
+.panel { border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: #fff; box-shadow: 0 8rpx 24rpx rgba(255, 80, 0, .07); }
+.summary { display: flex; align-items: center; justify-content: space-between; padding: 24rpx; margin-bottom: 18rpx; background: linear-gradient(90deg, #fff7f0, #fff); }
 .summary-actions { display: flex; gap: 12rpx; }
-.title { display: block; font-size: 36rpx; font-weight: 700; }
-.subtitle, .muted { display: block; margin-top: 8rpx; color: #6b7788; font-size: 23rpx; }
+.title { display: block; color: #ff5000; font-size: 38rpx; font-weight: 800; }
+.subtitle, .muted { display: block; margin-top: 8rpx; color: #7b6659; font-size: 23rpx; }
 .table { overflow: hidden; }
-.row { display: grid; grid-template-columns: 100rpx minmax(320rpx, 2fr) 180rpx 180rpx minmax(150rpx, 180rpx); gap: 14rpx; align-items: center; padding: 18rpx; border-bottom: 1rpx solid #edf1f5; font-size: 24rpx; }
+.row { display: grid; grid-template-columns: 100rpx minmax(320rpx, 2fr) 180rpx 180rpx minmax(150rpx, 180rpx); gap: 14rpx; align-items: center; padding: 20rpx; border-bottom: 1rpx solid #fff0e7; font-size: 24rpx; }
 .row:last-child { border-bottom: none; }
-.head { color: #6b7788; background: #f7f9fb; font-weight: 700; }
+.head { color: #a45f38; background: #fff7f0; font-weight: 700; }
 .product-cell { display: flex; align-items: center; gap: 14rpx; min-width: 0; }
-.cover { width: 76rpx; height: 76rpx; border-radius: 8rpx; background: #edf1f4; }
+.cover { width: 86rpx; height: 86rpx; border-radius: 12rpx; background: #fff7f0; }
 .name { display: block; font-size: 25rpx; font-weight: 700; }
-.price { color: #b74428; font-weight: 700; }
+.price { color: #ff5000; font-weight: 900; }
 .qty { display: flex; align-items: center; gap: 12rpx; }
-.primary, .secondary, .danger, .step { display: flex; align-items: center; justify-content: center; height: 58rpx; margin: 0; border-radius: 8rpx; font-size: 23rpx; white-space: nowrap; box-sizing: border-box; }
-.primary { padding: 0 20rpx; color: #fff; background: #1f6b57; }
-.secondary { padding: 0 20rpx; color: #1f6b57; background: #e8f3ef; }
-.danger { padding: 0 18rpx; color: #a43333; background: #faeeee; }
-.step { width: 48rpx; color: #1f6b57; background: #e8f3ef; }
+.primary, .secondary, .danger, .step { display: flex; align-items: center; justify-content: center; height: 58rpx; margin: 0; border-radius: 999rpx; font-size: 23rpx; white-space: nowrap; box-sizing: border-box; }
+.primary { padding: 0 24rpx; color: #fff; background: linear-gradient(90deg, #ff9f1a, #ff5000); font-weight: 700; }
+.secondary { padding: 0 20rpx; color: #ff5000; background: #fff0e7; }
+.danger { padding: 0 18rpx; color: #d93600; background: #fff0e8; }
+.step { width: 52rpx; color: #ff5000; background: #fff0e7; }
 .empty { padding: 80rpx 20rpx; color: #798493; text-align: center; font-size: 26rpx; }
 .empty-btn { width: 180rpx; margin: 20rpx auto 0; }
 @media screen and (max-width: 760px) {

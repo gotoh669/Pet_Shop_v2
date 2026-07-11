@@ -2,8 +2,8 @@
   <view class="page">
     <view class="toolbar">
       <view>
-        <text class="title">商品管理</text>
-        <text class="subtitle">浏览已审核商品，支持分类筛选和加入购物车</text>
+        <text class="title">宠物好物市场</text>
+        <text class="subtitle">像逛淘宝一样挑选已审核商品</text>
       </view>
       <view class="toolbar-actions">
         <button class="ghost" @click="goCart">购物车</button>
@@ -12,7 +12,7 @@
       </view>
     </view>
 
-    <view class="panel filter">
+    <view class="filter">
       <input class="input" v-model="query.keyword" placeholder="搜索商品名称或品牌" confirm-type="search" @confirm="loadProducts" />
       <picker :range="categoryPicker" range-key="name" @change="onCategoryChange">
         <view class="picker">{{ categoryLabel }}</view>
@@ -20,27 +20,20 @@
       <button class="primary small" @click="loadProducts">查询</button>
     </view>
 
-    <view class="table panel" v-if="products.length">
-      <view class="thead row">
-        <text>商品</text>
-        <text>分类</text>
-        <text>价格</text>
-        <text>库存</text>
-        <text>操作</text>
-      </view>
-      <view class="row" v-for="product in products" :key="product.id">
-        <view class="product-cell" @click="goDetail(product)">
-          <image class="cover" :src="product.cover_url || fallbackImage" mode="aspectFit"></image>
-          <view>
-            <text class="name">{{ product.title }}</text>
-            <text class="muted">{{ product.subtitle || product.brand || '暂无副标题' }}</text>
+    <view class="product-grid" v-if="products.length">
+      <view class="product-card" v-for="product in products" :key="product.id" @click="goDetail(product)">
+        <image class="cover" :src="product.cover_url || fallbackImage" mode="aspectFit"></image>
+        <view class="card-body">
+          <text class="name">{{ product.title }}</text>
+          <text class="muted">{{ product.subtitle || product.brand || '暂无副标题' }}</text>
+          <view class="tag-line">
+            <text class="tag">{{ product.category_name || '精选' }}</text>
+            <text class="tag">库存 {{ product.stock }}</text>
           </view>
-        </view>
-        <text>{{ product.category_name || '-' }}</text>
-        <text class="price">￥{{ money(product.price) }}</text>
-        <text>{{ product.stock }}</text>
-        <view class="row-actions">
-          <button class="ghost row-btn" @click="goDetail(product)">详情</button>
+          <view class="buy-line">
+            <text class="price">￥{{ money(product.price) }}</text>
+            <button class="cart-btn" @click.stop="goDetail(product)">去看看</button>
+          </view>
         </view>
       </view>
     </view>
@@ -127,36 +120,38 @@ export default {
 </script>
 
 <style>
-page { background: #f3f5f8; }
-.page { min-height: 100vh; padding: 24rpx; color: #172033; }
-.toolbar { display: flex; justify-content: space-between; gap: 18rpx; margin-bottom: 20rpx; }
-.title { display: block; font-size: 36rpx; font-weight: 700; }
-.subtitle, .muted { display: block; margin-top: 8rpx; color: #6b7788; font-size: 23rpx; }
+page { background: #f5f5f5; }
+.page { min-height: 100vh; padding: 24rpx; color: #1f1f1f; }
+.toolbar { display: flex; justify-content: space-between; gap: 18rpx; margin-bottom: 20rpx; padding: 22rpx 24rpx; border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: linear-gradient(90deg, #fff7f0, #fff); }
+.title { display: block; color: #ff5000; font-size: 38rpx; font-weight: 800; }
+.subtitle, .muted { display: block; margin-top: 8rpx; color: #7b6659; font-size: 23rpx; }
 .toolbar-actions, .filter { display: flex; gap: 12rpx; align-items: center; }
-.panel { border: 1rpx solid #e2e8ef; border-radius: 8rpx; background: #fff; }
-.filter { padding: 18rpx; margin-bottom: 18rpx; }
-.input, .picker { height: 72rpx; padding: 0 20rpx; border: 1rpx solid #d9e0e8; border-radius: 8rpx; background: #fbfcfd; font-size: 24rpx; line-height: 72rpx; }
+.panel { border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: #fff; }
+.filter { padding: 14rpx; margin-bottom: 18rpx; border: 2rpx solid #ff6a00; border-radius: 999rpx; background: #fff; }
+.input, .picker { height: 72rpx; padding: 0 24rpx; border: 0; border-radius: 999rpx; background: #fff7f0; font-size: 24rpx; line-height: 72rpx; }
 .input { flex: 1; }
 .picker { width: 260rpx; }
 .ghost, .primary { display: flex; align-items: center; justify-content: center; height: 58rpx; margin: 0; padding: 0 18rpx; border-radius: 8rpx; font-size: 23rpx; white-space: nowrap; box-sizing: border-box; }
-.ghost { color: #1f6b57; background: #e8f3ef; }
-.primary { color: #fff; background: #1f6b57; }
+.ghost { color: #ff5000; background: #fff0e7; }
+.primary { color: #fff; background: linear-gradient(90deg, #ff7a1a, #ff3d00); }
 .small { width: 120rpx; height: 72rpx; }
-.table { overflow: hidden; }
-.row { display: grid; grid-template-columns: minmax(320rpx, 2fr) minmax(180rpx, 1fr) 160rpx 120rpx minmax(170rpx, 200rpx); gap: 16rpx; align-items: center; padding: 18rpx; border-bottom: 1rpx solid #edf1f5; font-size: 24rpx; }
-.row:last-child { border-bottom: none; }
-.thead { background: #f7f9fb; color: #6b7788; font-weight: 700; }
-.product-cell { display: flex; align-items: center; gap: 14rpx; min-width: 0; }
-.cover { width: 76rpx; height: 76rpx; border-radius: 8rpx; background: #edf1f4; }
-.name { display: block; font-size: 26rpx; font-weight: 700; }
-.price { color: #b74428; font-weight: 700; }
-.row-actions { display: flex; align-items: center; justify-content: flex-start; gap: 10rpx; min-width: 0; }
-.row-btn { min-width: 92rpx; width: auto; flex: 0 0 auto; }
+.product-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240rpx, 1fr)); gap: 18rpx; }
+.product-card { overflow: hidden; border: 1rpx solid #ffe0cc; border-radius: 18rpx; background: #fff; box-shadow: 0 8rpx 22rpx rgba(255, 80, 0, .08); cursor: pointer; transition: transform .15s, box-shadow .15s; }
+.product-card:hover { box-shadow: 0 14rpx 32rpx rgba(255, 80, 0, .14); transform: translateY(-2rpx); }
+.cover { width: 100%; height: 260rpx; background: #fff7f0; }
+.card-body { padding: 18rpx; }
+.name { display: -webkit-box; overflow: hidden; min-height: 70rpx; font-size: 27rpx; font-weight: 700; line-height: 1.35; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.tag-line { display: flex; flex-wrap: wrap; gap: 8rpx; margin-top: 12rpx; }
+.tag { padding: 4rpx 10rpx; border-radius: 999rpx; color: #a45f38; background: #fff3ec; font-size: 20rpx; }
+.buy-line { display: flex; align-items: center; justify-content: space-between; gap: 12rpx; margin-top: 16rpx; }
+.price { color: #ff5000; font-size: 32rpx; font-weight: 800; }
+.cart-btn { display: flex; align-items: center; justify-content: center; width: 112rpx; height: 52rpx; margin: 0; border-radius: 999rpx; color: #fff; background: linear-gradient(90deg, #ff9f1a, #ff5000); font-size: 22rpx; }
 .empty { padding: 80rpx 20rpx; color: #798493; text-align: center; font-size: 26rpx; }
 @media screen and (max-width: 760px) {
   .toolbar, .toolbar-actions, .filter { flex-direction: column; align-items: stretch; }
   .picker, .small { width: 100%; }
-  .row { grid-template-columns: 1fr; }
-  .thead { display: none; }
+  .filter { border-radius: 18rpx; }
+  .product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cover { height: 220rpx; }
 }
 </style>

@@ -22,6 +22,8 @@ class Settings:
     )
     redis_url: str = os.getenv("REDIS_URL", "redis://127.0.0.1:6379/0")
     deepseek_api_key: str = os.getenv("DEEPSEEK_API_KEY", "")
+    deepseek_base_url: str = os.getenv("DEEPSEEK_BASE_URL", "https://api.deepseek.com")
+    deepseek_model: str = os.getenv("DEEPSEEK_MODEL", "deepseek-v4-flash")
     secret_key: str = os.getenv("SECRET_KEY", "pet-shop-v2-dev-secret-change-me")
     access_token_expire_minutes: int = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "10080"))
     sms_code_expire_minutes: int = int(os.getenv("SMS_CODE_EXPIRE_MINUTES", "5"))
